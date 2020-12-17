@@ -1,14 +1,29 @@
 <?php
+/*----------------------------------------*/
+// @name: CSA                             //
+// @author: Catover203                    //
+// @version: 1.0                          //
+/*----------------------------------------*/
 namespace Catover203\Crypto;
 class CSA{
 	function __construct($number_1st = 900, $number_2nd = 700){
-		if(!empty($number_1st) and !empty($number_2nd)){
-			$this->num1st = $number_1st;
-			$this->num2nd = $number_2nd;
-		}elseif(empty($number_1st) and empty($number_2nd) and (($number_1st - $number_2nd) >= 200)){
-			$this->error('start CSA construct', 'missing fist or last number');
-		}elseif(!(($number_1st - $number_2nd) >= 200)){
-			$this->error('start CSA construct', 'fist_number - last_number >= 200');
+		
+		if(require('csa.config.php')){
+			require('csa.config.php');
+			$this->num1st = $CSA['config']['1st_number'];
+			$this->num2nd = $CSA['config']['2nd_number'];
+			if(!(($number_1st - $number_2nd) >= 200)){
+				$this->error('start CSA construct', 'fist_number - last_number >= 200');
+			}
+		}else{
+			if(!empty($number_1st) and !empty($number_2nd)){
+				$this->num1st = $number_1st;
+				$this->num2nd = $number_2nd;
+			}elseif(empty($number_1st) and empty($number_2nd) and (($number_1st - $number_2nd) >= 200)){
+				$this->error('start CSA construct', 'missing fist or last number');
+			}elseif(!(($number_1st - $number_2nd) >= 200)){
+				$this->error('start CSA construct', 'fist_number - last_number >= 200');
+			}
 		}
 	}
 	function private_key_to_public_key($private_key){
