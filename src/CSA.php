@@ -12,6 +12,7 @@ class CSA{
 			require('csa.config.php');
 			$this->num1st = $CSA['config']['1st_number'];
 			$this->num2nd = $CSA['config']['2nd_number'];
+			$this->num    = $CSA['config']['1st_number']-$CSA['config']['2nd_number'];
 			if(!(($number_1st - $number_2nd) >= 200)){
 				$this->error('start CSA construct', 'fist_number - last_number >= 200');
 			}
@@ -19,6 +20,7 @@ class CSA{
 			if(!empty($number_1st) and !empty($number_2nd)){
 				$this->num1st = $number_1st;
 				$this->num2nd = $number_2nd;
+				$this->num    = $number_1st-$number_2nd;
 			}elseif(empty($number_1st) and empty($number_2nd) and (($number_1st - $number_2nd) >= 200)){
 				$this->error('start CSA construct', 'missing fist or last number');
 			}elseif(!(($number_1st - $number_2nd) >= 200)){
@@ -29,12 +31,13 @@ class CSA{
 	function private_key_to_public_key($private_key){
 		$number_1st = $this->num1st;
 		$number_2nd = $this->num2nd;
+		$num        = $this->num;
 		if(!empty($private_key)){
 			$key = $this->text2ascii(base64_decode($private_key));
 			$keysize = count($key);
 			$cipher = "";
 			for($i = 0; $i < $keysize; $i++){
-				$cipher .= chr(258 ^ ($key[$i % $keysize] % $number_1st));
+				$cipher .= chr($num ^ ($key[$i % $keysize] % $number_1st));
 			}
 			return base64_encode($cipher);
 		}else{
@@ -45,6 +48,7 @@ class CSA{
 	 function decrypt($text, $private_key) {
 		$number_1st = $this->num1st;
 		$number_2nd = $this->num2nd;
+		$num        = $this->num;
 		if(!empty($private_key)){
 			$key = $this->text2ascii(base64_decode($private_key));
 			$text = $this->text2ascii($text);
@@ -52,13 +56,13 @@ class CSA{
 			$text_size = count($text);
 			$x1 = "";
 			for ($i = 0; $i < $text_size; $i++){
-				$x1 .= chr($text[$i] ^ (258 ^ ($key[$i % $keysize] % $number_2nd)));
+				$x1 .= chr($text[$i] ^ ($num ^ ($key[$i % $keysize] % $number_2nd)));
 			}
 			$text = $this->text2ascii($x1);
 			$text_size = count($text);
 			$cipher = "";
 			for($i = 0; $i < $text_size; $i++){
-				$cipher .= chr($text[$i] ^ (258 ^ ($key[$i % $keysize] / $number_2nd)));
+				$cipher .= chr($text[$i] ^ ($num ^ ($key[$i % $keysize] / $number_2nd)));
 			}
 			return $cipher;
 		}else{
@@ -69,6 +73,7 @@ class CSA{
 	 function encrypt($text, $public_key){
 		$number_1st = $this->num1st;
 		$number_2nd = $this->num2nd;
+		$num        = $this->num;
 		if(!empty($public_key)){
 			$key = $this->text2ascii(base64_decode($public_key));
 			$text = $this->text2ascii($text);
@@ -76,7 +81,7 @@ class CSA{
 			$text_size = count($text);
 			$cipher = "";
 			for($i = 0; $i < $text_size; $i++){
-				$cipher .= chr($text[$i] ^ (258 ^ ($key[$i % $keysize] % $number_1st)));
+				$cipher .= chr($text[$i] ^ ($num ^ ($key[$i % $keysize] % $number_1st)));
 			}
 			return $cipher;
 		}else{
@@ -87,6 +92,7 @@ class CSA{
 	 function create_prvivate_key($bit = 2048){
 		$number_1st = $this->num1st;
 		$number_2nd = $this->num2nd;
+		$num        = $this->num;
 		if(in_array($bit, array(512, 1024, 2048, 4056, 8112, 16224))){
 			for($x = 0; $x < $bit; $x++){
 				$key .= rand(0, 9);
@@ -95,7 +101,7 @@ class CSA{
 			$keysize = count($key);
 			$cipher = "";
 			for($i = 0; $i < $keysize; $i++){
-				$cipher .= chr(258 ^ ($key[$i % $keysize] % $number_2nd));
+				$cipher .= chr($num ^ ($key[$i % $keysize] % $number_2nd));
 			}
 			return base64_encode($cipher);
 		}else{
