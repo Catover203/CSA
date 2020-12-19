@@ -89,7 +89,7 @@ class CSA{
 			$this->error('encrypt');
 		}
 	 }
-	 function create_prvivate_key($bit = 2048){
+	 function create_private_key($bit = 2048){
 		$number_1st = $this->num1st;
 		$number_2nd = $this->num2nd;
 		$num        = $this->num;
