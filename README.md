@@ -20,7 +20,7 @@ require('CSA.php');
 use Catover203\Crypto\CSA;
 $csa = new CSA;
 $bit = 2048;
-$private_key = $csa->create_prvivate_key($bit);
+$private_key = $csa->create_private_key($bit);
 echo 'Private key is: '.$private_key;
 ?>
 ```
@@ -33,7 +33,7 @@ require('CSA.php');
 use Catover203\Crypto\CSA;
 $csa = new CSA;
 $bit = 2048;
-$private_key = $csa->create_prvivate_key($bit);
+$private_key = $csa->create_private_key($bit);
 $public_key = $csa->private_key_to_public_key($private_key);
 echo 'Public key is: '.$public_key;
 ?>
@@ -45,7 +45,7 @@ require('CSA.php');
 use Catover203\Crypto\CSA;
 $csa = new CSA;
 $bit = 2048;
-$private_key = $csa->create_prvivate_key($bit);
+$private_key = $csa->create_private_key($bit);
 $public_key = $csa->private_key_to_public_key($private_key);
 $encrypt = $csa->encrypt('Hi', $public_key);
 echo 'Encrypted data: Hi -> '.$encrypt;
@@ -59,7 +59,7 @@ require('CSA.php');
 use Catover203\Crypto\CSA;
 $csa = new CSA;
 $bit = 2048;
-$private_key = $csa->create_prvivate_key($bit);
+$private_key = $csa->create_private_key($bit);
 $public_key = $csa->private_key_to_public_key($private_key);
 $encrypt = $csa->encrypt('Hi', $public_key);
 $decrypt = $csa->decrypt('Hi', $private_key);
