@@ -5,8 +5,7 @@
 // @version: 1.0                          //
 /*----------------------------------------*/
 namespace Catover203\Crypto;
-<?php
-class Cert{
+class CSA{
 	function __construct($secret = 2068, $key = ['encrypt_key' => 'Default_KEY','encrypt_key_num' => 500]){
 		if(file_exists('csa.config.php')){
 			require('csa.config.php');
