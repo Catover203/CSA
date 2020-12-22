@@ -41,7 +41,7 @@ class CSA{
 	 function decrypt($text, $private_key) {
 		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$key = explode('-',$this->encrypt_key(base64_decode($private_key)));
+			$key = explode('-',base64_decode($this->encrypt_key($private_key)));
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
 			$text_size = count($text);
@@ -58,7 +58,7 @@ class CSA{
 	 function encrypt($text, $public_key){
 		$secret_number = $this->secret_number;
 		if(!empty($public_key)){
-			$alt_key = $this->encrypt_key(base64_decode($public_key));
+			$alt_key = base64_decode($this->encrypt_key($public_key));
 			$key = explode('-', $alt_key);
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
@@ -80,7 +80,7 @@ class CSA{
 				$key .= '-'.rand(0, 9);
 			}
 			$key = substr($key,1);
-			return $this->encrypt_key(base64_encode($key));
+			return base64_encode($this->encrypt_key($key));
 		}else{
 			return false;
 			$this->error('Create private key', 'invalid bit length');
