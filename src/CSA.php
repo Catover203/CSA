@@ -26,13 +26,13 @@ class CSA{
 	function private_key_to_public_key($private_key){
 		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$key = explode('-', $this->encrypt_key(base64_decode($private_key)));
+			$key = explode('-', $this->decrypt_key(base64_decode($private_key)));
 			$keysize = count($key);
 			$cipher = "";
 			for($i = 0; $i < $keysize; $i++){
 				$cipher .= '-'.($key[$i] ^ $secret_number);
 			}
-			return base64_encode(substr($cipher,1));
+			return base64_encode($this->encrypt_key(substr($cipher,1)));
 		}else{
 			return false;
 			$this->error('turn private key to public key', 'missing private key');
@@ -41,7 +41,7 @@ class CSA{
 	 function decrypt($text, $private_key) {
 		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$key = explode('-',base64_decode($this->encrypt_key($private_key)));
+			$key = explode('-',$this->decrypt_key(base64_decode($private_key)));
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
 			$text_size = count($text);
@@ -58,7 +58,7 @@ class CSA{
 	 function encrypt($text, $public_key){
 		$secret_number = $this->secret_number;
 		if(!empty($public_key)){
-			$alt_key = base64_decode($this->encrypt_key($public_key));
+			$alt_key = $this->decrypt_key(base64_decode($public_key));
 			$key = explode('-', $alt_key);
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
@@ -88,13 +88,20 @@ class CSA{
 	}
 	private function encrypt_key($plaintext) {
 		$secret = $this->secret_item;
-		$key = $this->text2ascii($secret['encrypt_key']);
-		$plaintext = $this->text2ascii($plaintext);
+		$key = $this->text2ascii($plaintext);
 		$keysize = count($key);
-		$input_size = count($plaintext);
 		$cipher = "";
-		for ($i = 0; $i < $input_size; $i++)
-	    $cipher .= chr($plaintext[$i] ^ $key[$i % $keysize] + 512 * 100 ^ $secret['encrypt_key_num']);
+		for ($i = 0; $i < $keysize; $i++)
+	    $cipher .= chr($key[$i] + $secret['encrypt_key_num']);
+		return $cipher;
+    }
+    private function decrypt_key($plaintext) {
+		$secret = $this->secret_item;
+		$key = $this->text2ascii($plaintext);
+		$keysize = count($key);
+		$cipher = "";
+		for ($i = 0; $i < $keysize; $i++)
+	    $cipher .= chr($key[$i] - $secret['encrypt_key_num']);
 		return $cipher;
     }
 	private function text2ascii($text){
@@ -108,7 +115,7 @@ class CSA{
 		return $text;
 	}
 	private function error($name, $reason){
-		echo "<b>CSA Error:</b> Could not ".$name.", ".$reason." in <b>".$_SERVER['DOCUMENT_ROOT'].substr($_SERVER['SCRIPT_NAME'],1)."</b>.";
+		echo "<br><b>CSA Error:</b> Could not ".$name.", ".$reason." in <b>".$_SERVER['DOCUMENT_ROOT'].substr($_SERVER['SCRIPT_NAME'],1)."</b>.";
 	}
 }
 ?>
