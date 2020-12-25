@@ -47,7 +47,7 @@ class CSA{
 			$text_size = count($text);
 			$x1 = "";
 			for ($i = 0; $i < $text_size; $i++){
-				$x1 .= chr($text[$i] - ($key[$i] ^ $secret_number));
+				$x1 .= chr($text[$i] - ($key[$i % $text_size] ^ $secret_number));
 			}
 			return $x1;
 		}else{
@@ -65,7 +65,7 @@ class CSA{
 			$text_size = count($text);
 			$cipher = "";
 			for($i = 0; $i < $text_size; $i++){
-				$cipher .= chr($text[$i] + $key[$i]);
+				$cipher .= chr($text[$i] + $key[$i % $text_size]);
 			}
 			return $cipher;
 		}else{
