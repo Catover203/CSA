@@ -11,7 +11,7 @@ class CSA{
 			require('csa.config.php');
 			$this->secret_number = $CSA['config']['secret'];
 			$this->secret_item = $CSA['config']['secret_item'];
-			if(!isset($this->secret_number)){
+			if(!isset($CSA['config']['secret'])){
 				$this->error('start CSA construct', 'missing secret number');
 			}
 		}else{
