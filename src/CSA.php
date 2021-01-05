@@ -2,7 +2,7 @@
 /*----------------------------------------*/
 // @name: CSA                             //
 // @author: Catover203                    //
-// @version: 1.0                          //
+// @version: 1.1                          //
 /*----------------------------------------*/
 namespace Catover203\Crypto;
 class CSA{
@@ -11,7 +11,7 @@ class CSA{
 			require('csa.config.php');
 			$this->secret_number = $CSA['config']['secret'];
 			$this->secret_item = $CSA['config']['secret_item'];
-			if(!isset($CSA['config']['secret'])){
+			if(!isset($this->secret_number)){
 				$this->error('start CSA construct', 'missing secret number');
 			}
 		}else{
@@ -26,7 +26,7 @@ class CSA{
 	function private_key_to_public_key($private_key){
 		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$key = explode('-', $this->decrypt_key(base64_decode($private_key)));
+			$key = str_split('$this->decrypt_key(base64_decode($private_key)));
 			$keysize = count($key);
 			$cipher = "";
 			for($i = 0; $i < $keysize; $i++){
@@ -41,7 +41,7 @@ class CSA{
 	 function decrypt($text, $private_key) {
 		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$key = explode('-',$this->decrypt_key(base64_decode($private_key)));
+			$key = str_split($this->decrypt_key(base64_decode($private_key)));
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
 			$text_size = count($text);
@@ -58,8 +58,7 @@ class CSA{
 	 function encrypt($text, $public_key){
 		$secret_number = $this->secret_number;
 		if(!empty($public_key)){
-			$alt_key = $this->decrypt_key(base64_decode($public_key));
-			$key = explode('-', $alt_key);
+			$key = str_split($this->decrypt_key(base64_decode($public_key)));
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
 			$text_size = count($text);
@@ -74,12 +73,11 @@ class CSA{
 		}
 	 }
 	 function create_private_key($bit = 2048){
-		if(in_array($bit, array(512, 1024, 2048, 4056, 8112, 16224))){
+		if(in_array($bit, array(512, 1024, 2048, 4096, 8192, 16384))){
 			$key = '';
 			for($x = 0; $x < $bit; $x++){
-				$key .= '-'.rand(0, 9);
+				$key .= rand(0, 9);
 			}
-			$key = substr($key,1);
 			return base64_encode($this->encrypt_key($key));
 		}else{
 			return false;
