@@ -2,72 +2,67 @@
 /*----------------------------------------*/
 // @name: CSA                             //
 // @author: Catover203                    //
-// @version: 1.1                          //
+// @version: 1.2                          //
 /*----------------------------------------*/
+// NOTE: v1.2 is in beta but I release    //
+// this version to increase small secure  //
 namespace Catover203\Crypto;
 class CSA{
-	function __construct($key = ['encrypt_key' => 'Default_KEY','encrypt_key_num' => 500],$secret = 2068){
-		if(file_exists('csa.config.php')){
-			require('csa.config.php');
-			$this->secret_number = $CSA['config']['secret'];
-			$this->secret_item = $CSA['config']['secret_item'];
-			if(!isset($this->secret_number)){
-				$this->error('start CSA construct', 'missing secret number');
-			}
-		}else{
-			if(!empty($secret)){
-				$this->secret_number = $secret;
-				$this->secret_item = $key;
-			}elseif(!empty($secret)){
-				$this->error('start CSA construct', 'missing secret number');
-			}
-		}
+	function __construct($debug = 0){
+	    $this->debug = $debug;
+	    $this->encrypt = 'sNUAD*\XnF5\W<ZoIM!^+U[>Udn';
 	}
 	function private_key_to_public_key($private_key){
-		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$eak = explode(';',$this->decrypt_key(base64_decode($private_key)));
-			$key = explode('-',$eak[1]);
+			$key = $this->text2ascii($this->crypt_key(base64_decode($private_key)));
+			$eak = $this->ekey($key);
 			$keysize = count($key);
 			$cipher = "";
 			for($i = 0; $i < $keysize; $i++){
-				$cipher .= '-'.($key[$i] ^ $eak[0]);
+				$cipher .= chr($key[$i] ^ $eak);
 			}
-			return base64_encode($this->encrypt_key(substr($cipher,1)));
+			if($this->debug == 1){
+				echo "\nConverting key to public";
+			}
+			return base64_encode($this->crypt_key($cipher));
 		}else{
 			return false;
 			$this->error('turn private key to public key', 'missing private key');
 		}
 	}
 	 function decrypt($text, $private_key) {
-		$secret_number = $this->secret_number;
 		if(!empty($private_key)){
-			$eak = explode(';',$this->decrypt_key(base64_decode($private_key)));
-			$key = explode('-',$eak[1]);
+			$key = $this->text2ascii($this->crypt_key(base64_decode($private_key)));
+			$eak = $this->ekey($key);
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
 			$text_size = count($text);
-			$x1 = "";
+			$crypt = "";
 			for ($i = 0; $i < $text_size; $i++){
-				$x1 .= chr($text[$i] - ($key[$i % $text_size] ^ $eak[0]));
+				$crypt .= chr($text[$i] ^ ($key[$i % $keysize] ^ $eak));
 			}
-			return $x1;
+			if($this->debug == 1){
+				echo "\nDecrypting";
+			}
+			return $crypt;
 		}else{
 			return false;
 			$this->error('decrypt','missing private key');
 		}
 	}
 	 function encrypt($text, $public_key){
-		$secret_number = $this->secret_number;
 		if(!empty($public_key)){
-			$eak = explode(';',$this->decrypt_key(base64_decode($private_key)));
-			$key = explode('-',$eak[1]);
+			$key = $this->text2ascii($this->crypt_key(base64_decode($public_key)));
+			$eak = $this->ekey($key);
 			$text = $this->text2ascii($text);
 			$keysize = count($key);
 			$text_size = count($text);
 			$cipher = "";
 			for($i = 0; $i < $text_size; $i++){
-				$cipher .= chr($text[$i] + $key[$i % $text_size]);
+				$cipher .= chr($text[$i] ^ $key[$i % $keysize]);
+			}
+			if($this->debug == 1){
+				echo "\nEncrypting";
 			}
 			return $cipher;
 		}else{
@@ -80,41 +75,47 @@ class CSA{
 			$key = '';
 			$e = 0;
 			for($x = 0; $x < $bit; $x++){
-				$rand = rand(0, 9);
-				$key .= '-'.$rand;
+				$rand = rand(32, 126);
+				$key .= chr($rand);
 				$e = $e+$rand;
+				if($this->debug == 1 && $x % 2 == 0){
+					if($rand > 63){
+						echo '+';
+					}else{
+						echo '.';
+					}
+				}
 			}
-			return base64_encode($this->encrypt_key($e.';'.substr($key,1)));
+			if($this->debug == 1){
+				echo "\ngenerate key finissed, e is ".$e;
+			}
+			return base64_encode($this->crypt_key($key));
 		}else{
 			return false;
 			$this->error('Create private key', 'invalid bit length');
 		}
 	}
-	private function encrypt_key($plaintext) {
-		$secret = $this->secret_item;
-		$key = $this->text2ascii($plaintext);
+	private function crypt_key($text){
+		$key = $this->text2ascii($this->encrypt);
+		$text = $this->text2ascii($text);
 		$keysize = count($key);
+		$text_size = count($text);
 		$cipher = "";
-		for ($i = 0; $i < $keysize; $i++)
-	    $cipher .= chr($key[$i] + $secret['encrypt_key_num']);
+		for($i = 0; $i < $text_size; $i++){
+			$cipher .= chr($text[$i] ^ $key[$i % $keysize]);
+		}
+		if($this->debug == 1){
+			echo "\nCrypting key";
+		}
 		return $cipher;
-    }
-    private function decrypt_key($plaintext) {
-		$secret = $this->secret_item;
-		$key = $this->text2ascii($plaintext);
-		$keysize = count($key);
-		$cipher = "";
-		for ($i = 0; $i < $keysize; $i++)
-	    $cipher .= chr($key[$i] - $secret['encrypt_key_num']);
-		return $cipher;
-    }
+	}
 	private function text2ascii($text){
 		return array_map('ord', str_split($text));
 	}
-	private function ascii2text($ascii) {
-		$text = "";
+	private function ekey($ascii) {
+		$text = 0;
 		foreach($ascii as $char){
-			$text .= chr($char);
+			$text = $text+$char;
 		}
 		return $text;
 	}
